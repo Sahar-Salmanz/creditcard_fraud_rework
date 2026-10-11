@@ -1,0 +1,250 @@
+{
+  "reference": "validation split",
+  "current": "test split",
+  "feature_drift": [
+    {
+      "feature": "hour_cos",
+      "psi": 22.239179,
+      "drift_flag": true,
+      "status": "DRIFT"
+    },
+    {
+      "feature": "Time",
+      "psi": 19.609559,
+      "drift_flag": true,
+      "status": "DRIFT"
+    },
+    {
+      "feature": "hour_of_day",
+      "psi": 19.609559,
+      "drift_flag": true,
+      "status": "DRIFT"
+    },
+    {
+      "feature": "hour_sin",
+      "psi": 5.849631,
+      "drift_flag": true,
+      "status": "DRIFT"
+    },
+    {
+      "feature": "tx_velocity_1h",
+      "psi": 1.865811,
+      "drift_flag": true,
+      "status": "DRIFT"
+    },
+    {
+      "feature": "amount_x_hour",
+      "psi": 0.997187,
+      "drift_flag": true,
+      "status": "DRIFT"
+    },
+    {
+      "feature": "rolling_avg_amount",
+      "psi": 0.510292,
+      "drift_flag": true,
+      "status": "DRIFT"
+    },
+    {
+      "feature": "Amount",
+      "psi": 0.044437,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V15",
+      "psi": 0.025999,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V12",
+      "psi": 0.023262,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V27",
+      "psi": 0.022961,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V21",
+      "psi": 0.022839,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V16",
+      "psi": 0.022829,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V11",
+      "psi": 0.021826,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V10",
+      "psi": 0.016099,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V3",
+      "psi": 0.015674,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V7",
+      "psi": 0.014551,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V4",
+      "psi": 0.0132,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V8",
+      "psi": 0.010544,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V22",
+      "psi": 0.009881,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V2",
+      "psi": 0.009685,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V6",
+      "psi": 0.00856,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V14",
+      "psi": 0.007409,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V28",
+      "psi": 0.007215,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V1",
+      "psi": 0.005929,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V9",
+      "psi": 0.005913,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V25",
+      "psi": 0.005312,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V18",
+      "psi": 0.004806,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V26",
+      "psi": 0.004402,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V23",
+      "psi": 0.004356,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V24",
+      "psi": 0.004354,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V19",
+      "psi": 0.00356,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V13",
+      "psi": 0.003186,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V20",
+      "psi": 0.002839,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V17",
+      "psi": 0.002701,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "log_amount",
+      "psi": 0.002411,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "amount_bucket",
+      "psi": 0.001798,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "V5",
+      "psi": 0.00152,
+      "drift_flag": false,
+      "status": "OK"
+    },
+    {
+      "feature": "is_night",
+      "psi": 0.0,
+      "drift_flag": false,
+      "status": "OK"
+    }
+  ],
+  "score_drift": {
+    "metric": "fraud_probability",
+    "psi": 0.030297,
+    "drift_flag": false,
+    "status": "OK",
+    "watch_threshold": 0.1,
+    "drift_threshold": 0.25
+  },
+  "n_features_drift": 7,
+  "n_features_watch": 0
+}

@@ -177,8 +177,17 @@ def chronological_split(df: DataFrame, train_frac: float = 0.70, val_frac: float
     return SplitResult(train=train, val=val, test=test)
 
 
+# Excluded from the model on purpose:
+#  - Time: seconds since the first transaction (a collection artifact; trees can't
+#    extrapolate past the training range, and it triggers artificial drift flags)
+#  - tx_velocity_1h, rolling_avg_amount: all-card traffic, not per-card behavior
+MODEL_FEATURES = (
+    ["Amount"] + PCA_FEATURES
+    + [f for f in ENGINEERED_FEATURES if f not in ("tx_velocity_1h", "rolling_avg_amount")]
+)
+
 def full_feature_list() -> list[str]:
-    return RAW_FEATURES + ENGINEERED_FEATURES
+    return MODEL_FEATURES
 
 
 if __name__ == "__main__":
@@ -206,6 +215,9 @@ if __name__ == "__main__":
     engineered_feature_correlations(featurized).show(20, truncate=False)
 
     split = chronological_split(featurized)
-    print(f"Train: {split.train.count():,}  Val: {split.val.count():,}  Test: {split.test.count():,}")
+    for name, d in [("train", split.train), ("val", split.val), ("test", split.test)]:
+        n = d.count()
+        f = d.filter("Class = 1").count()
+        print(f"{name:<5}: {n:>8,} rows | {f:>4} frauds ({100 * f / n:.3f}%)")
 
     spark.stop()

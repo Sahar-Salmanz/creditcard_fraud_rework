@@ -12,6 +12,7 @@ Thresholds (industry-standard rule of thumb):
     PSI > 0.25             -> DRIFT   (drift_flag = true)
 """
 from __future__ import annotations
+import math 
 
 from dataclasses import dataclass
 
@@ -55,7 +56,17 @@ def compute_psi_spark(
     ).collect()[0]
     lo, hi = float(edges["lo"]), float(edges["hi"])
     if hi == lo:
-        return 0.0  # constant column -> no drift signal possible
+        # Constant reference column: only two outcomes exist, "same as the
+        # reference value" or "different". Returning 0.0 here would hide a
+        # shift in the current data (e.g. a flag that is always 0 in the
+        # reference but 1 for part of the current slice).
+        ref_total = reference_df.count()
+        cur_total = current_df.count()
+        cur_same = current_df.where(F.col(column) == F.lit(lo)).count()
+        ref_pcts = [(ref_total + EPS) / (ref_total + 2 * EPS), EPS / (ref_total + 2 * EPS)]
+        cur_pcts = [(cur_same + EPS) / (cur_total + 2 * EPS),
+                    (cur_total - cur_same + EPS) / (cur_total + 2 * EPS)]
+        return float(sum((c - r) * math.log(c / r) for c, r in zip(cur_pcts, ref_pcts)))
     width = (hi - lo) / n_bins
 
     def bucket_expr(df: DataFrame) -> DataFrame:
@@ -143,7 +154,7 @@ if __name__ == "__main__":
     from spark_session import get_spark, quiet_spark
     from spark_etl import load_raw, schema_and_null_check, add_features, chronological_split, full_feature_list
 
-    data_path = sys.argv[1] if len(sys.argv) > 1 else "data/creditcard_sample.csv"
+    data_path = sys.argv[1] if len(sys.argv) > 1 else "data/creditcard.csv"
     spark = get_spark()
     quiet_spark(spark)
 
@@ -152,7 +163,23 @@ if __name__ == "__main__":
     featurized = add_features(clean)
     split = chronological_split(featurized)
 
-    report = psi_report(split.val, split.test, full_feature_list())
+    # Cache: otherwise every PSI call recomputes the whole chain
+    # (read, dedupe, windows, sort) from scratch for each feature.
+    split.val.cache()
+    split.test.cache()
+
+    # Sanity check: which hours of the dataset each slice covers.
+    # This first action also fills the cache.
+    for name, d in [("val", split.val), ("test", split.test)]:
+        r = d.agg(F.count("*").alias("n"), F.sum("Class").alias("frauds"),
+                  F.min("Time").alias("t0"), F.max("Time").alias("t1")).first()
+        print(f"{name:<4}: {r.n:,} rows | {r.frauds} frauds | Time {r.t0/3600:.1f}h to {r.t1/3600:.1f}h")
+
+    # Deterministic functions of the clock: consecutive slices differ by design,
+    # so a flag on them says nothing about the model's inputs.
+    TIME_DERIVED = {"hour_of_day", "hour_sin", "hour_cos", "is_night", "amount_x_hour"}
+    monitored = [f for f in full_feature_list() if f not in TIME_DERIVED]
+    report = psi_report(split.val, split.test, monitored)
     report.show(40, truncate=False)
 
     n_drift = report.where("drift_flag").count()

@@ -33,7 +33,7 @@ class PsiThresholds:
 def _status(psi: float, thresholds: PsiThresholds) -> str:
     if psi > thresholds.drift:
         return "DRIFT"
-    if psi > thresholds.watch:
+    if psi >= thresholds.watch:
         return "WATCH"
     return "OK"
 
@@ -44,10 +44,8 @@ def compute_psi_spark(
     column: str,
     n_bins: int = 10,
 ) -> float:
-    """Bins `column` from `reference_df` into `n_bins` equal-width buckets
-    (edges derived from the reference distribution only — that's what makes
-    it a *reference* distribution), buckets `current_df` on those same
-    edges, and computes PSI with a single Spark SQL join.
+    """Bins `column` from `reference_df` into `n_bins` equal-width buckets, 
+    and computes PSI with a single Spark SQL join.
     """
     spark = reference_df.sparkSession
 

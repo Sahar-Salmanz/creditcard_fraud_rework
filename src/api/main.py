@@ -12,6 +12,7 @@ Endpoints:
 from __future__ import annotations
 
 import json
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 import joblib
@@ -22,18 +23,12 @@ from .schemas import DriftResponse, PredictionResponse, Transaction
 
 ARTIFACTS_DIR = Path(__file__).resolve().parent.parent.parent / "artifacts"
 
-app = FastAPI(
-    title="Credit Card Fraud Detection API",
-    description="Serves fraud probability scores from a Spark-engineered, "
-                 "scikit-learn-trained model, plus PSI drift status.",
-    version="1.0.0",
-)
-
 _state: dict = {}
 
 
-@app.on_event("startup")
-def load_artifacts() -> None:
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Runs once when the server starts (before the yield) and once when it stops (after)."""
     try:
         _state["model"] = joblib.load(ARTIFACTS_DIR / "model.joblib")
         _state["scaler"] = joblib.load(ARTIFACTS_DIR / "scaler.joblib")
@@ -42,9 +37,20 @@ def load_artifacts() -> None:
         raise RuntimeError(
             f"Missing model artifacts in {ARTIFACTS_DIR}. Run `python train.py <data_path>` first."
         ) from e
-    # Drift report is monitoring output, not required for the service to boot.
+    # The drift report is monitoring output, not required for the service to boot.
     drift_path = ARTIFACTS_DIR / "drift_report.json"
     _state["drift_report"] = json.loads(drift_path.read_text()) if drift_path.exists() else None
+    yield
+    _state.clear()   # shutdown: release the model and report
+
+
+app = FastAPI(
+    title="Credit Card Fraud Detection API",
+    description="Serves fraud probability scores from a Spark-engineered, "
+                "scikit-learn-trained model, plus PSI drift status.",
+    version="1.0.0",
+    lifespan=lifespan,
+)
 
 
 @app.get("/health")
